@@ -1,4 +1,4 @@
-- hosts: new-cluster
+- hosts: cluster
   # connection: local
   gather_facts: false
 
