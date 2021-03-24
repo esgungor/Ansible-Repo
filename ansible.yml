@@ -1,0 +1,31 @@
+- hosts: new-cluster
+  # connection: local
+  gather_facts: false
+  vars:
+    address: 1.1.1.1
+
+  tasks:
+  - name: load var from file
+    slurp:
+      src: /etc/docker/daemon.json
+    register: imported_var
+
+  - debug:
+      msg: "{{ imported_var.content|b64decode|from_json }}"    
+  - name: append more key/values
+    set_fact:
+      imported_var: "{{ imported_var.content|b64decode|from_json | default([]) | combine({ item.key : [item.value] }) }}"
+    with_items:
+      - { 'key': 'insecure-registries', 'value': "{{ lookup('env', 'MASTER_IP') }}:30002" }
+
+  - debug:
+      var: imported_var
+
+  - name: write var to file
+    copy: 
+      content: "{{ imported_var | to_nice_json }}" 
+      dest: /etc/docker/daemon.json
+  - name: reload
+    command: systemctl daemon-reload
+  - name: restart docker
+    command: systemctl restart docker
