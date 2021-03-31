@@ -1,1 +1,10 @@
+- hosts: cluster
+  # connection: local
+  gather_facts: false
 
+  tasks:
+  - name: copying ssl cert into master
+    copy: 
+      src: /home/ssl/dex.pem
+      dest: /etc/ssl/certs/dex.pem
+  
