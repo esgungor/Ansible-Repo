@@ -5,10 +5,11 @@
     copy: 
       src: /home/ssl/dex.pem
       dest: /etc/ssl/certs/dex.pem
-  - name: yq download
-    shell: wget https://github.com/mikefarah/yq/releases/download/v4.2.0/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
-  - name: builder to build
+  - name: api-edit
     shell: |
-      yq -i e '.spec.containers[].command |= . + ["--oidc-issuer-url=http://{{ lookup ('env', 'MASTER_IP')}}:32000"]  + ["--oidc-client-id=kubeapps"] + ["--oidc-ca-file=/etc/ssl/certs/dex.pem"] + ["--oidc-username-claim=email"]  + ["--oidc-groups-claim=groups"]' /etc/kubernetes/manifests/kube-apiserver.yaml
-  - name: remove yq 
-    shell: rm -rf /usr/bin/yq
+      sed -i '/- kube-apiserver/a\    \- --oidc-groups-claim=groups' test.yaml
+      sed -i '/- kube-apiserver/a\    \- --oidc-username-claim=email' test.yaml
+      sed -i '/- kube-apiserver/a\    \- --oidc-ca-file=/etc/ssl/certs/dex.pem' test.yaml
+      sed -i '/- kube-apiserver/a\    \- --oidc-client-id=kubeapps':32000' test.yaml
+      sed -i '/- kube-apiserver/a\    \- --oidc-issuer-url=https://'${MASTER_IP}':32000' test.yaml
+
