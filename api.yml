@@ -7,9 +7,8 @@
       dest: /etc/ssl/certs/dex.pem
   - name: api-edit
     shell: |
-      sed -i '/- kube-apiserver/a\    \- --oidc-groups-claim=groups' test.yaml
-      sed -i '/- kube-apiserver/a\    \- --oidc-username-claim=email' test.yaml
-      sed -i '/- kube-apiserver/a\    \- --oidc-ca-file=/etc/ssl/certs/dex.pem' test.yaml
-      sed -i '/- kube-apiserver/a\    \- --oidc-client-id=kubeapps':32000' test.yaml
-      sed -i '/- kube-apiserver/a\    \- --oidc-issuer-url=https://'${MASTER_IP}':32000' test.yaml
-
+      sed -i '/- kube-apiserver/a\    \- --oidc-groups-claim=groups' /etc/kubernetes/manifests/kube-apiserver.yaml
+      sed -i '/- kube-apiserver/a\    \- --oidc-username-claim=email' /etc/kubernetes/manifests/kube-apiserver.yaml
+      sed -i '/- kube-apiserver/a\    \- --oidc-ca-file=/etc/ssl/certs/dex.pem' /etc/kubernetes/manifests/kube-apiserver.yaml
+      sed -i '/- kube-apiserver/a\    \- --oidc-client-id=kubeapps' /etc/kubernetes/manifests/kube-apiserver.yaml
+      sed -i '/- kube-apiserver/a\    \- --oidc-issuer-url=https://{{ lookup ('env', 'MASTER_IP') }}:32000' /etc/kubernetes/manifests/kube-apiserver.yaml
